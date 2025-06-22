@@ -1,34 +1,37 @@
-name: Run Tests
+name: Build and Test
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
 
-    - name: Set up Python 3.13
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.13
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"  # O el que uses localmente
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Run tests with pytest
-      run: python -m pytest -v --junitxml=results.xml
+      - name: Instalar FFmpeg
+        run: sudo apt update && sudo apt install -y ffmpeg
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      with:
-        name: pytest-results
-        path: results.xml
+      - name: Ejecutar pruebas
+        run: python -m pytest -s tests/ --junitxml=results.xml
+
+      - name: Subir resultados
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-pruebas
+          path: results.xml
